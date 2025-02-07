@@ -66,7 +66,7 @@ public class DataLoader implements ApplicationRunner
 		  
 		  CitizenPlan c5 = new CitizenPlan();
 		  c5.setCitizenName("Pooja");
-		  c5.setGender("Fe-Male");
+		  c5.setGender("Female");
 		  c5.setPlanName("Food");
 		  c5.setPlanStatus("Denied");
 		  c5.setDenialReason("Rental Income");

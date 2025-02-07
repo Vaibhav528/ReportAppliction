@@ -8,7 +8,7 @@ import in.vaibhav.request.SearchDto;
 public interface ReportService 
 {
 	
-	public List<String> getPlannames();
+	public List<String> getPlanNames();
 	
 	 public List<String> getPlanStatus();
 	 
