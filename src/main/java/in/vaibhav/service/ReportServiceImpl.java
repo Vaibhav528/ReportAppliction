@@ -1,5 +1,6 @@
 package in.vaibhav.service;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +26,9 @@ import com.lowagie.text.pdf.PdfWriter;
 import in.vaibhav.entity.CitizenPlan;
 import in.vaibhav.repo.CitizenPlanRepository;
 import in.vaibhav.request.SearchDto;
+import in.vaibhav.util.EmailUtils;
+import in.vaibhav.util.ExcelGenerator;
+import in.vaibhav.util.PdfGenerator;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -32,10 +36,19 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ReportServiceImpl implements ReportService {
 	
 	@Autowired
+	private ExcelGenerator excelGenerator;
+	
+	@Autowired
+	private EmailUtils emailutils;
+	
+	@Autowired
+	private PdfGenerator pdfGenerator;
+	
+	@Autowired
 	private CitizenPlanRepository planRepo;
 
 	@Override
-	public List<String> getPlanNames() 
+	public List<String> getPlanNames()  
 	{
 		
 		return planRepo.getPlanNames();
@@ -54,7 +67,6 @@ public class ReportServiceImpl implements ReportService {
 	public List<CitizenPlan> search(SearchDto request) {
 		
 		CitizenPlan entity = new CitizenPlan();
-
 		
 		if(null!=request.getPlanName() && !"".equals(request.getPlanName()))
 		{
@@ -89,108 +101,42 @@ public class ReportServiceImpl implements ReportService {
 	}
 
 	
-	
 	@Override
 	public boolean exportExcel (HttpServletResponse  response) throws Exception
 	{
+		File f = new File("Plans.xls");
 		
-		Workbook workbook = new HSSFWorkbook();
-		Sheet sheet = workbook.createSheet("plans-data");
-        Row headerRow = sheet.createRow(0);
+		List<CitizenPlan> plans=planRepo.findAll();
+		excelGenerator.generate(response, plans,f);
 		
-		headerRow.createCell(0).setCellValue("ID");
-		headerRow.createCell(1).setCellValue("Citizen Name");
-		headerRow.createCell(2).setCellValue("Plan Name");
-		headerRow.createCell(3).setCellValue("Plan Status");
-		headerRow.createCell(4).setCellValue("Plan Start Date");
-		headerRow.createCell(5).setCellValue("Plan End Date");
-		headerRow.createCell(6).setCellValue("Benefit Amt");
-		 
-		List<CitizenPlan> records = planRepo.findAll();
-		int dataRowIndex=1;
+		String subject="Test mail subject";
+		String body="<h1>Test mail Body</h1>";
+		String to="vaibhavsingh528@gmail.com";
 		
-		for(CitizenPlan plan:records)
-		{
-			Row dataRow= sheet.createRow(dataRowIndex);
-			dataRow.createCell(0).setCellValue(plan.getCitizenId());
-			dataRow.createCell(1).setCellValue(plan.getCitizenName());
-			dataRow.createCell(2).setCellValue(plan.getPlanName());
-			dataRow.createCell(3).setCellValue(plan.getPlanStatus());
-			dataRow.createCell(4).setCellValue(plan.getPlanStartDate());
-			dataRow.createCell(5).setCellValue(plan.getPlanEndDate() +"");
-			dataRow.createCell(6).setCellValue(plan.getBenefitAmount()+ "");
-			
-			if(null != plan.getPlanStartDate())
-			{
-				dataRow.createCell(4).setCellValue(plan.getPlanStartDate());
-			}else {
-				dataRow.createCell(4).setCellValue("N/A");
-			
-			if(null != plan.getPlanEndDate())
-				{
-					dataRow.createCell(5).setCellValue(plan.getPlanEndDate());
-				}else {
-					dataRow.createCell(5).setCellValue("N/A");
-				
-			if(null != plan.getBenefitAmount())
-			{
-				dataRow.createCell(6).setCellValue(plan.getBenefitAmount());
-			}else {
-				dataRow.createCell(6).setCellValue("N/A");
-			}
-				} 
-			}
-			dataRowIndex++;	
-	}
-		ServletOutputStream outputStream = response.getOutputStream();
-		workbook.write(outputStream);
-		workbook.close();
+		
+		emailutils.sendEmail(subject, body, to,f);
+		
+		f.delete();
 		
 		 return true;
 	}
  
 	
-	
 	@Override
 	public boolean pdfExport(HttpServletResponse  response) throws Exception 
 	{
-		Document doc= new Document(PageSize.A4);
-		PdfWriter.getInstance(doc, response.getOutputStream());
-		doc.open();
-		
-		Font fontTiltle=FontFactory.getFont(FontFactory.TIMES_ROMAN);
-		fontTiltle.setSize(20);
-		
-		Paragraph p =new Paragraph("Citizen Plans Info",fontTiltle);
-		p.setAlignment(Paragraph.ALIGN_CENTER);
-		 doc.add(p);
+
+		File f = new File("Plans.pdf");
+		List<CitizenPlan> plans=planRepo.findAll();
+		 pdfGenerator.generate(response, plans,f);
 		 
-		 PdfPTable table=new PdfPTable(6);
-		 table.setSpacingBefore(8);
-		 
-		 table.addCell("Id");
-		 table.addCell("Citizen Name");
-		 table.addCell("Plan Name");
-		 table.addCell("Paln Status");
-		 table.addCell("Start Date");
-		 table.addCell("End date");
-		 
-		 List<CitizenPlan> plans = planRepo.findAll();
-		 
-		  for(CitizenPlan plan: plans)
-		  {
-			  table.addCell(String.valueOf(plan.getCitizenId()));
-			  table.addCell(plan.getCitizenName());
-			  table.addCell(plan.getPlanName());
-			  table.addCell(plan.getPlanStatus());
-			  table.addCell(plan.getPlanStartDate() +"");
-			  table.addCell(plan.getPlanEndDate() + "");
-		  }
-		 doc.add(table);
-		 doc.close();
-		  
-		
-		return false;
-	}
+		  String subject="Test mail subject";
+			String body="<h1>Test mail Body</h1>";
+			String to="vaibhavsingh528@gmail.com";
+			emailutils.sendEmail(subject, body, to,f);
+			
+			f.delete();
+		return true;
+	} 
 
 }

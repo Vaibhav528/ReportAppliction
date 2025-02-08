@@ -21,19 +21,27 @@ public class ReportController
 	private ReportService services;
 	
 	@GetMapping("/pdf")
-	public void downloadpdf(HttpServletResponse  response) throws Exception
+	public void downloadpdf(HttpServletResponse  response, Model model) throws Exception
 	{
 		response.setContentType("application/pdf");
 		response.addHeader("Content-Disposition" , "attachment;filename=plans.pdf");
-		services.pdfExport(response);
+		boolean status = services.pdfExport(response);
+		if(status)
+		{
+			model.addAttribute("msg", "Pdf Report Sent to Your Email");
+		}
 	}
 	
 	@GetMapping("/excel")
-	public void downloadExcel(HttpServletResponse  response) throws Exception
+	public void downloadExcel(HttpServletResponse  response , Model model) throws Exception
 	{
 		response.setContentType("application/octet-stream");
 		response.addHeader("Content-Disposition" , "attachment;filename=plans.xls");
-		services.exportExcel(response);
+		boolean status = services.exportExcel(response);
+		if(status)
+		{
+			model.addAttribute("msg", "Excel Report Sent to Your Email");
+		}
 	}
 	
 	@PostMapping("/search")
