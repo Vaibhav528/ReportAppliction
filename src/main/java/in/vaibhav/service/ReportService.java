@@ -4,6 +4,7 @@ import java.util.List;
 
 import in.vaibhav.entity.CitizenPlan;
 import in.vaibhav.request.SearchDto;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface ReportService 
 {
@@ -15,8 +16,8 @@ public interface ReportService
 	//method for search  functionality  button 
 	 public List<CitizenPlan> search(SearchDto request);
 	 
-	 public boolean exportExcel();
+	 public boolean exportExcel(HttpServletResponse  response) throws Exception ;
 	 
-	 public boolean pdfExport();
+	 public boolean pdfExport(HttpServletResponse  response) throws Exception ;
 
 }

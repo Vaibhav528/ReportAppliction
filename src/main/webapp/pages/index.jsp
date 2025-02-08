@@ -106,8 +106,8 @@
 
     <div class="text-center mt-3">
         <h5>Export:</h5>
-        <a href="#" class="btn btn-success me-2">Excel</a>
-        <a href="#" class="btn btn-danger">PDF</a>
+        <a href="excel" class="btn btn-success me-2">Excel</a>
+        <a href="pdf" class="btn btn-danger">PDF</a>
     </div>
 </div>
 

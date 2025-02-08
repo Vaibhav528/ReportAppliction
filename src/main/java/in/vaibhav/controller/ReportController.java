@@ -12,12 +12,29 @@ import org.springframework.web.bind.annotation.PostMapping;
 import in.vaibhav.entity.CitizenPlan;
 import in.vaibhav.request.SearchDto;
 import in.vaibhav.service.ReportService;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
-public class ReportController
+public class ReportController 
 {
 	@Autowired
 	private ReportService services;
+	
+	@GetMapping("/pdf")
+	public void downloadpdf(HttpServletResponse  response) throws Exception
+	{
+		response.setContentType("application/pdf");
+		response.addHeader("Content-Disposition" , "attachment;filename=plans.pdf");
+		services.pdfExport(response);
+	}
+	
+	@GetMapping("/excel")
+	public void downloadExcel(HttpServletResponse  response) throws Exception
+	{
+		response.setContentType("application/octet-stream");
+		response.addHeader("Content-Disposition" , "attachment;filename=plans.xls");
+		services.exportExcel(response);
+	}
 	
 	@PostMapping("/search")
 	public String handleSearch(@ModelAttribute("searchDto") SearchDto request, Model model) 
